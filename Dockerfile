@@ -8,7 +8,7 @@ RUN sed '/ ndots:/d' /etc/resolv.conf > /tmp/resolv.conf \
  && apk update \
  && apk add ca-certificates git go libc-dev \
  && update-ca-certificates \
- && wget -O - https://github.com/kumina/dovecot_exporter/archive/${DOVECOT_EXPORTER_VERSION}.tar.gz | tar xzf - \
+ && wget -O - https://github.com/kumina/dovecot_exporter/archive/${DOVECOT_EXPORTER_VERSION}.tar.gz | tar xz \
  && cd "dovecot_exporter-$DOVECOT_EXPORTER_VERSION" \
  && export GOPATH=/gopath \
  && go get -d ./... \
