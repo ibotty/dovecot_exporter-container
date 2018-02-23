@@ -13,4 +13,5 @@ RUN sed '/ ndots:/d' /etc/resolv.conf > /tmp/resolv.conf \
  && export GOPATH=/gopath \
  && go get -d ./... \
  && go build --ldflags '-extldflags "-static"' \
- && strip dovecot_exporter
+ && mv "dovecot_exporter-$DOVECOT_EXPORTER_VERSION" /dovecot_exporter \
+ && strip /dovecot_exporter
