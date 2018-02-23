@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: dovecot-exporter-builder
+    name: dovecot-exporter-builder
+  spec:
+    lookupPolicy:
+      local: false
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+    labels:
+      build: dovecot-exporter-builder
+    name: alpine
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: alpine:3.7
+      from:
+        kind: DockerImage
+        name: alpine:3.7
+      name: "3.7"
+      referencePolicy:
+        type: Source
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: dovecot-exporter
+    name: dovecot-exporter
+  spec:
+    lookupPolicy:
+      local: false
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      build: dovecot-exporter-builder
+    name: dovecot-exporter-builder
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: dovecot-exporter-builder:latest
+    source:
+      git:
+        uri: https://github.com/ibotty/dovecot_exporter-container.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: alpine:3.7
+      type: Docker
+    triggers:
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      build: dovecot-exporter
+    name: dovecot-exporter
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: dovecot-exporter:latest
+    source:
+      dockerfile: |-
+        FROM scratch
+        ENV PORT 9166/tcp
+        COPY dovecot_exporter /dovecot_exporter
+        USER 1000
+        ENTRYPOINT ["/dovecot_exporter"]
+      type: Dockerfile
+      images:
+      - from:
+          kind: ImageStreamTag
+          name: dovecot-exporter-builder:latest
+        paths:
+        - sourcePath: /dovecot_exporter
+          destinationDir: "."
+    strategy:
+      dockerStrategy:
+        from:
+          kind: DockerImage
+          name: scratch
+      type: Docker
+    triggers:
+    - type: ConfigChange
