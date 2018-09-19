@@ -1,6 +1,6 @@
 FROM alpine:3.7
 
-ENV DOVECOT_EXPORTER_VERSION=0.1.1
+ENV DOVECOT_EXPORTER_VERSION=0.1.3
 
 # hack to let it build when option ndots:5 is set, which is not supported by muslc
 RUN sed '/ ndots:/d' /etc/resolv.conf > /tmp/resolv.conf \
